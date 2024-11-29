@@ -2,6 +2,11 @@ import os
 import gdown
 import pandas as pd
 import joblib
+import psutil  # To monitor memory usage
+import logging
+
+# Set up logging to track memory usage
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
 # Define paths and URLs for models
 MODEL_DIR = "models"  # Directory to store models
@@ -10,23 +15,32 @@ MODEL2_URL = "https://drive.google.com/uc?id=186kGZFhB1rSPLqqVyKEgO-JcSH0mqlCw"
 MODEL1_PATH = os.path.join(MODEL_DIR, "model1.pkl")
 MODEL2_PATH = os.path.join(MODEL_DIR, "model2.pkl")
 
+def log_memory_usage():
+    """Log current memory usage."""
+    process = psutil.Process(os.getpid())
+    memory_info = process.memory_info()
+    memory_usage = memory_info.rss / (1024 * 1024)  # Convert bytes to MB
+    logging.info(f"Current memory usage: {memory_usage:.2f} MB")
+
 def download_model(model_url, model_path):
     """Download the model file if it doesn't already exist."""
     if not os.path.exists(model_path):
-        print(f"Downloading model from {model_url} to {model_path}...")
+        logging.info(f"Downloading model from {model_url} to {model_path}...")
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
         gdown.download(model_url, model_path, quiet=False)
 
 def init_models():
-    """Download models at app startup."""
+    """Download models at app startup if they don't exist."""
     download_model(MODEL1_URL, MODEL1_PATH)
     download_model(MODEL2_URL, MODEL2_PATH)
+    log_memory_usage()  # Log memory usage after downloading models
 
 def load_models():
-    """Load models into memory."""
-    print("Loading models into memory...")
+    """Load models into memory once at app startup."""
+    logging.info("Loading models into memory...")
     model1 = joblib.load(MODEL1_PATH)
     model2 = joblib.load(MODEL2_PATH)
+    log_memory_usage()  # Log memory usage after loading models
     return model1, model2
 
 # Initialize models at app startup
@@ -35,6 +49,8 @@ model1, model2 = load_models()  # Models are loaded into memory at startup
 
 def predict_genetic_disorder(input_data):
     """Predict genetic disorder using preloaded models."""
+    log_memory_usage()  # Log memory usage before prediction
+    
     # Convert the input JSON data to a pandas DataFrame
     single_input = pd.DataFrame(input_data)
 
@@ -91,4 +107,6 @@ def predict_genetic_disorder(input_data):
 
     # Convert to JSON and return the result
     json_output = submission.to_json(orient='records', lines=True)
+    
+    log_memory_usage()  # Log memory usage after prediction
     return json_output
