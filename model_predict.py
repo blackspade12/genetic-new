@@ -15,6 +15,9 @@ MODEL2_URL = "https://drive.google.com/uc?id=186kGZFhB1rSPLqqVyKEgO-JcSH0mqlCw"
 MODEL1_PATH = os.path.join(MODEL_DIR, "model1.pkl")
 MODEL2_PATH = os.path.join(MODEL_DIR, "model2.pkl")
 
+# Compression option for joblib (can adjust the level for balance between speed and compression)
+COMPRESSION = 3  # 0 - no compression, 9 - maximum compression (trade-off between size and speed)
+
 def log_memory_usage():
     """Log current memory usage."""
     process = psutil.Process(os.getpid())
@@ -29,6 +32,11 @@ def download_model(model_url, model_path):
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
         gdown.download(model_url, model_path, quiet=False)
 
+def compress_model(model, model_path):
+    """Compress and save the model using joblib."""
+    joblib.dump(model, model_path, compress=COMPRESSION)
+    logging.info(f"Model saved with compression at {model_path}")
+
 def init_models():
     """Download models at app startup if they don't exist."""
     download_model(MODEL1_URL, MODEL1_PATH)
@@ -38,8 +46,8 @@ def init_models():
 def load_models():
     """Load models into memory once at app startup."""
     logging.info("Loading models into memory...")
-    model1 = joblib.load(MODEL1_PATH)
-    model2 = joblib.load(MODEL2_PATH)
+    model1 = joblib.load(MODEL1_PATH)  # Automatically handles decompression
+    model2 = joblib.load(MODEL2_PATH)  # Automatically handles decompression
     log_memory_usage()  # Log memory usage after loading models
     return model1, model2
 
