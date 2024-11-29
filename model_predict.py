@@ -2,35 +2,43 @@ import os
 import gdown
 import pandas as pd
 import joblib
-import tempfile  # Added for handling temp directory
 
-# Function to download model from Google Drive using gdown
+# Define paths and URLs for models
+MODEL_DIR = "models"  # Directory to store models
+MODEL1_URL = "https://drive.google.com/uc?id=1cATLRCX35rOPEo5DlrhB8QKZjjcrf5JC"
+MODEL2_URL = "https://drive.google.com/uc?id=186kGZFhB1rSPLqqVyKEgO-JcSH0mqlCw"
+MODEL1_PATH = os.path.join(MODEL_DIR, "model1.pkl")
+MODEL2_PATH = os.path.join(MODEL_DIR, "model2.pkl")
+
 def download_model(model_url, model_path):
-    if not os.path.exists(model_path):  # Check if the model already exists
+    """Download the model file if it doesn't already exist."""
+    if not os.path.exists(model_path):
+        print(f"Downloading model from {model_url} to {model_path}...")
+        os.makedirs(os.path.dirname(model_path), exist_ok=True)
         gdown.download(model_url, model_path, quiet=False)
-    return joblib.load(model_path)
 
-# Function to load model1 on demand
-def load_model1():
-    model1_url = "https://drive.google.com/uc?id=1cATLRCX35rOPEo5DlrhB8QKZjjcrf5JC"  # Model 7 file ID
-    model1_path = os.path.join(tempfile.gettempdir(), "model1.pkl")  # Use a temp directory
-    return download_model(model1_url, model1_path)
+def init_models():
+    """Download models at app startup."""
+    download_model(MODEL1_URL, MODEL1_PATH)
+    download_model(MODEL2_URL, MODEL2_PATH)
 
-# Function to load model2 on demand
-def load_model2():
-    model2_url = "https://drive.google.com/uc?id=186kGZFhB1rSPLqqVyKEgO-JcSH0mqlCw"  # Model 15 file ID
-    model2_path = os.path.join(tempfile.gettempdir(), "model2.pkl")  # Use a temp directory
-    return download_model(model2_url, model2_path)
+def load_models():
+    """Load models into memory."""
+    print("Loading models into memory...")
+    model1 = joblib.load(MODEL1_PATH)
+    model2 = joblib.load(MODEL2_PATH)
+    return model1, model2
+
+# Initialize models at app startup
+init_models()
+model1, model2 = load_models()  # Models are loaded into memory at startup
 
 def predict_genetic_disorder(input_data):
-    # Load models on demand
-    model1 = load_model1()
-    model2 = load_model2()
-
+    """Predict genetic disorder using preloaded models."""
     # Convert the input JSON data to a pandas DataFrame
     single_input = pd.DataFrame(input_data)
 
-    # Columns from the training dataset
+    # Expected columns from the training dataset
     expected_columns = [
         'White Blood cell count (thousand per microliter)',
         'Blood cell count (mcL)',
@@ -53,14 +61,14 @@ def predict_genetic_disorder(input_data):
         'Birth defects'
     ]
 
-    # Adjust the input to match expected columns
+    # Adjust input to match expected columns
     single_input = single_input.reindex(columns=expected_columns, fill_value=0)
 
-    # Make predictions
+    # Make predictions using preloaded models
     final_pred1 = model1.predict(single_input)
     final_pred2 = model2.predict(single_input)
 
-    # Create a DataFrame for the predictions
+    # Create a DataFrame for predictions
     submission = pd.DataFrame()
     submission['Patient Id'] = [1]  # Replace with dynamic IDs if needed
     submission['Genetic Disorder'] = final_pred1
