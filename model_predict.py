@@ -8,10 +8,12 @@ import logging
 # Set up logging to track memory usage
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
-# Define paths and URLs for models
+# Define paths and URLs for models (GitHub raw URLs for models)
 MODEL_DIR = "models"  # Directory to store models
-MODEL1_URL = "https://drive.google.com/uc?id=1CUwmzZatsIVnx-GUFr5TbIIpyKIup1BK"
-MODEL2_URL = "https://drive.google.com/uc?id=1787y9sRoFlYRYIn4lSlmuVYfLIe9iXZH"
+
+# Replace with the actual raw URLs of the models on GitHub
+MODEL1_URL = "https://github.com/blackspade12/jmedia-genetic-disorder-prediction/blob/main/models/model2.pkl"
+MODEL2_URL = "https://github.com/blackspade12/jmedia-genetic-disorder-prediction/blob/main/models/model2.pkl"
 
 MODEL1_PATH = os.path.join(MODEL_DIR, "model1.pkl")
 MODEL2_PATH = os.path.join(MODEL_DIR, "model2.pkl")
