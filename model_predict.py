@@ -10,8 +10,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
 # Define paths and URLs for models
 MODEL_DIR = "models"  # Directory to store models
-MODEL1_URL = "https://drive.google.com/uc?id=1qvfKaY6dIuQElN5b3MvGmPVoCq_ndtkn"
-MODEL2_URL = "https://drive.google.com/uc?id=1JYw0KvWUY06PQqKrpaNBZkMI-qsj6Ow2"
+MODEL1_URL = "https://drive.google.com/uc?id=1CUwmzZatsIVnx-GUFr5TbIIpyKIup1BK"
+MODEL2_URL = "https://drive.google.com/uc?id=1787y9sRoFlYRYIn4lSlmuVYfLIe9iXZH"
 
 MODEL1_PATH = os.path.join(MODEL_DIR, "model1.pkl")
 MODEL2_PATH = os.path.join(MODEL_DIR, "model2.pkl")
